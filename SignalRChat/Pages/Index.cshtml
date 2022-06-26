@@ -1,0 +1,41 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.5/signalr.min.js" integrity="sha512-Wj6cUe+56vJ4FtfeF4QqPHy4VGO9gZ2iU8GFlLRjawhx1f4sW3BezJLU1ewaZl3bZV8iya0EJOmRY5SD9XTwvw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script>
+     var connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
+    connection.on("ReceiveMessage",function(user,message){
+        alert(`Hi ${user}  , you said : ${message}`);
+    });
+
+    connection.start().then(()=>{
+        connection.invoke("SendMessage","Cons","Hello World - 1  !!").catch((err)=>{
+            return console.error(err.toString());
+        });
+    }).catch((err)=>{
+        return console.error(err.toString());
+    });
+
+
+    connection.on("TestMessage",function(user,message){
+        alert(`Hi ${user}  , you said : ${message}`);
+    });
+
+    connection.start().then(()=>{
+        connection.invoke("SendTestMessage","Will","Hello World !!").catch((err)=>{
+            return console.error(err.toString());
+        });
+    }).catch((err)=>{
+        return console.error(err.toString());
+    }); 
+</script>
+
