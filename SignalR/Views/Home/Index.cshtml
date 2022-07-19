@@ -1,0 +1,68 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+@* html start *@
+   <div class="container">
+        <div class="row">&nbsp;</div>
+        <div class="row">
+            <div class="col-2">User</div>
+            <div class="col-4"><input type="text" id="userInput" /></div>
+        </div>
+        <div class="row">
+            <div class="col-2">Message</div>
+            <div class="col-4"><input type="text" id="messageInput" /></div>
+        </div>
+        <div class="row">&nbsp;</div>
+        <div class="row">
+            <div class="col-6">
+                <input type="button" id="sendButton" value="Send Message" />
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <hr />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-6">
+            <ul id="messagesList"></ul>
+        </div>
+    </div>
+
+@* html end *@
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.5/signalr.min.js" integrity="sha512-Wj6cUe+56vJ4FtfeF4QqPHy4VGO9gZ2iU8GFlLRjawhx1f4sW3BezJLU1ewaZl3bZV8iya0EJOmRY5SD9XTwvw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+    var connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
+    connection.on("ReceiveMessage",function(user,message){
+         var li = document.createElement("li");
+        document.getElementById("messagesList").appendChild(li);
+        // We can assign user-supplied strings to an element's textContent because it
+        // is not interpreted as markup. If you're assigning in any other way, you 
+        // should be aware of possible script injection concerns.
+        li.textContent = `${user} : ${message}`;
+    });
+
+    connection.start().then(()=>{
+        document.getElementById("sendButton").disabled = false;
+
+    }).catch((err)=>{
+        return console.error(err.toString());
+    });
+
+
+    document.getElementById("sendButton").addEventListener("click", function (event) {
+        var user = document.getElementById("userInput").value;
+        var message = document.getElementById("messageInput").value;
+        connection
+            .invoke("SendMessage", user, message)
+            .catch(function (err) {
+                return console.error(err.toString());
+            });
+        event.preventDefault();
+    });
+</script>
